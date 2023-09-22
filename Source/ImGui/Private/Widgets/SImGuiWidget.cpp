@@ -112,6 +112,8 @@ void SImGuiWidget::Construct(const FArguments& InArgs)
 	// Initialize state.
 	UpdateVisibility();
 	UpdateMouseCursor();
+	// Support Slate Global Invalidation.
+	ForceVolatile(true);
 
 	ChildSlot
 	[
