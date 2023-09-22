@@ -88,6 +88,11 @@ Index of this file:
 static const float          DRAGDROP_HOLD_TO_OPEN_TIMER = 0.70f;    // Time for drag-hold to activate items accepting the ImGuiButtonFlags_PressedOnDragDropHold button behavior.
 static const float          DRAG_MOUSE_THRESHOLD_FACTOR = 0.50f;    // Multiplier for the default value of io.MouseDragThreshold to make DragFloat/DragInt react faster to mouse drags.
 
+namespace
+{
+    constexpr bool kLeftLabels = 1;
+}
+
 // Those MIN/MAX values are not define because we need to point to them
 static const signed char    IM_S8_MIN  = -128;
 static const signed char    IM_S8_MAX  = 127;
@@ -1687,7 +1692,10 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
     const float arrow_size = (flags & ImGuiComboFlags_NoArrowButton) ? 0.0f : GetFrameHeight();
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
     const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size : CalcItemWidth();
-    const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    if(kLeftLabels)
+       bb.TranslateX(label_size.x + style.ItemInnerSpacing.x);
+
     const ImRect total_bb(bb.Min, bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id, &bb))
@@ -1735,8 +1743,15 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
             LogSetNextTextDecoration("{", "}");
         RenderTextClipped(bb.Min + style.FramePadding, ImVec2(value_x2, bb.Max.y), preview_value, NULL, NULL);
     }
-    if (label_size.x > 0)
-        RenderText(ImVec2(bb.Max.x + style.ItemInnerSpacing.x, bb.Min.y + style.FramePadding.y), label);
+    if(label_size.x > 0)
+    {
+       float x;
+       if constexpr(kLeftLabels)
+          x = bb.Min.x - label_size.x - style.ItemInnerSpacing.x;
+       else
+          x = bb.Max.x + style.ItemInnerSpacing.x;
+       RenderText(ImVec2(x, bb.Min.y + style.FramePadding.y), label);
+    }
 
     if (!popup_open)
         return false;
@@ -2398,11 +2413,16 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
     const ImGuiID id = window->GetID(label);
     const float w = CalcItemWidth();
 
+    const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
+    bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
+
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    // #todo: buggy when double clicking on the left side!
+    if(kLeftLabels && !temp_input_is_active)
+       frame_bb.TranslateX(label_size.x + style.ItemInnerSpacing.x);
     const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
 
-    const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id, &frame_bb, temp_input_allowed ? ImGuiItemFlags_Inputable : 0))
         return false;
@@ -2412,7 +2432,6 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
         format = DataTypeGetInfo(data_type)->PrintFmt;
 
     const bool hovered = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
-    bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
     if (!temp_input_is_active)
     {
         // Tabbing or CTRL-clicking on Drag turns it into an InputText
@@ -2446,6 +2465,10 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
 
     if (temp_input_is_active)
     {
+       if(kLeftLabels)
+       {
+          frame_bb.TranslateX(-(label_size.x + style.ItemInnerSpacing.x));
+       }
         // Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
         const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0 && (p_min == NULL || p_max == NULL || DataTypeCompare(data_type, p_min, p_max) < 0);
         return TempInputScalar(frame_bb, id, label, data_type, p_data, format, is_clamp_input ? p_min : NULL, is_clamp_input ? p_max : NULL);
@@ -2468,8 +2491,15 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
         LogSetNextTextDecoration("{", "}");
     RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
 
-    if (label_size.x > 0.0f)
-        RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+    if(label_size.x > 0.0f)
+    {
+       float x;
+       if constexpr(kLeftLabels)
+          x = frame_bb.Min.x - label_size.x - style.ItemInnerSpacing.x;
+       else
+          x = frame_bb.Max.x + style.ItemInnerSpacing.x;
+       RenderText(ImVec2(x, frame_bb.Min.y + style.FramePadding.y), label);
+    }
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | (temp_input_allowed ? ImGuiItemStatusFlags_Inputable : 0));
     return value_changed;
@@ -2484,6 +2514,14 @@ bool ImGui::DragScalarN(const char* label, ImGuiDataType data_type, void* p_data
     ImGuiContext& g = *GImGui;
     bool value_changed = false;
     BeginGroup();
+    const char* label_end = FindRenderedTextEnd(label);
+
+    if (kLeftLabels && label != label_end)
+    {
+       TextEx(label, label_end);
+       SameLine(0, g.Style.ItemInnerSpacing.x);
+    }
+
     PushID(label);
     PushMultiItemsWidths(components, CalcItemWidth());
     size_t type_size = GDataTypeInfo[data_type].Size;
@@ -2499,8 +2537,7 @@ bool ImGui::DragScalarN(const char* label, ImGuiDataType data_type, void* p_data
     }
     PopID();
 
-    const char* label_end = FindRenderedTextEnd(label);
-    if (label != label_end)
+    if (!kLeftLabels && label != label_end)
     {
         SameLine(0, g.Style.ItemInnerSpacing.x);
         TextEx(label, label_end);
@@ -2991,7 +3028,9 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     const float w = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    if(kLeftLabels)
+       frame_bb.TranslateX(label_size.x + style.ItemInnerSpacing.x);
     const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
 
     const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
@@ -3056,7 +3095,14 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
 
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+    {
+       float x;
+       if constexpr(kLeftLabels)
+          x = frame_bb.Min.x - label_size.x - style.ItemInnerSpacing.x;
+       else
+          x = frame_bb.Max.x + style.ItemInnerSpacing.x;			
+       RenderText(ImVec2(x, frame_bb.Min.y + style.FramePadding.y), label);
+    }
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | (temp_input_allowed ? ImGuiItemStatusFlags_Inputable : 0));
     return value_changed;
@@ -3073,6 +3119,13 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
     bool value_changed = false;
     BeginGroup();
     PushID(label);
+    const char* label_end = FindRenderedTextEnd(label);
+    if (kLeftLabels && label != label_end)
+    {
+       TextEx(label, label_end);
+       SameLine(0, g.Style.ItemInnerSpacing.x);
+    }
+
     PushMultiItemsWidths(components, CalcItemWidth());
     size_t type_size = GDataTypeInfo[data_type].Size;
     for (int i = 0; i < components; i++)
@@ -3087,8 +3140,7 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
     }
     PopID();
 
-    const char* label_end = FindRenderedTextEnd(label);
-    if (label != label_end)
+    if (!kLeftLabels && label != label_end)
     {
         SameLine(0, g.Style.ItemInnerSpacing.x);
         TextEx(label, label_end);
@@ -3472,6 +3524,13 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
 
         BeginGroup(); // The only purpose of the group here is to allow the caller to query item data e.g. IsItemActive()
         PushID(label);
+        const char* label_end = FindRenderedTextEnd(label);
+        if (kLeftLabels && label != label_end)
+        {
+           TextEx(label, label_end);
+           SameLine(0, 0);
+        }
+
         SetNextItemWidth(ImMax(1.0f, CalcItemWidth() - (button_size + style.ItemInnerSpacing.x) * 2));
         if (InputText("", buf, IM_ARRAYSIZE(buf), flags)) // PushId(label) + "" gives us the expected ID from outside point of view
             value_changed = DataTypeApplyFromText(buf, data_type, p_data, format);
@@ -3483,7 +3542,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
         ImGuiButtonFlags button_flags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
         if (flags & ImGuiInputTextFlags_ReadOnly)
             BeginDisabled();
-        SameLine(0, style.ItemInnerSpacing.x);
+        SameLine(0, style.ItemInnerSpacing.x * (kLeftLabels ? 2 : 1));
         if (ButtonEx("-", ImVec2(button_size, button_size), button_flags))
         {
             DataTypeApplyOp(data_type, '-', p_data, p_data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step);
@@ -3498,8 +3557,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
         if (flags & ImGuiInputTextFlags_ReadOnly)
             EndDisabled();
 
-        const char* label_end = FindRenderedTextEnd(label);
-        if (label != label_end)
+        if (!kLeftLabels && label != label_end)
         {
             SameLine(0, style.ItemInnerSpacing.x);
             TextEx(label, label_end);
@@ -3524,6 +3582,13 @@ bool ImGui::InputScalarN(const char* label, ImGuiDataType data_type, void* p_dat
     ImGuiContext& g = *GImGui;
     bool value_changed = false;
     BeginGroup();
+    const char* label_end = FindRenderedTextEnd(label);
+    if(kLeftLabels && label != label_end)
+    {
+       TextEx(label, label_end);
+       SameLine(0.0f, g.Style.ItemInnerSpacing.x);
+    }
+
     PushID(label);
     PushMultiItemsWidths(components, CalcItemWidth());
     size_t type_size = GDataTypeInfo[data_type].Size;
@@ -3539,8 +3604,7 @@ bool ImGui::InputScalarN(const char* label, ImGuiDataType data_type, void* p_dat
     }
     PopID();
 
-    const char* label_end = FindRenderedTextEnd(label);
-    if (label != label_end)
+    if(!kLeftLabels && label != label_end)
     {
         SameLine(0.0f, g.Style.ItemInnerSpacing.x);
         TextEx(label, label_end);
@@ -4103,7 +4167,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     const ImVec2 frame_size = CalcItemSize(size_arg, CalcItemWidth(), (is_multiline ? g.FontSize * 8.0f : label_size.y) + style.FramePadding.y * 2.0f); // Arbitrary default of 8 lines high for multi-line
     const ImVec2 total_size = ImVec2(frame_size.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), frame_size.y);
 
-    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
+    ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
+    if(kLeftLabels)
+       frame_bb.TranslateX(label_size.x + style.ItemInnerSpacing.x);
     const ImRect total_bb(frame_bb.Min, frame_bb.Min + total_size);
 
     ImGuiWindow* draw_window = window;
@@ -5001,8 +5067,15 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         LogRenderedText(&draw_pos, buf_display, buf_display_end);
     }
 
-    if (label_size.x > 0)
-        RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+    if(label_size.x > 0)
+    {
+       float x;
+       if constexpr(kLeftLabels)
+          x = frame_bb.Min.x - label_size.x - style.ItemInnerSpacing.x;
+       else
+          x = frame_bb.Max.x + style.ItemInnerSpacing.x;
+       RenderText(ImVec2(x, frame_bb.Min.y + style.FramePadding.y), label);
+    }
 
     if (value_changed && !(flags & ImGuiInputTextFlags_NoMarkEdited))
         MarkItemEdited(id);
@@ -6622,6 +6695,8 @@ bool ImGui::BeginListBox(const char* label, const ImVec2& size_arg)
     // Fractional number of items helps seeing that we can scroll down/up without looking at scrollbar.
     ImVec2 size = ImFloor(CalcItemSize(size_arg, CalcItemWidth(), GetTextLineHeightWithSpacing() * 7.25f + style.FramePadding.y * 2.0f));
     ImVec2 frame_size = ImVec2(size.x, ImMax(size.y, label_size.y));
+    if(kLeftLabels)
+       window->DC.CursorPos.x += label_size.x + style.ItemInnerSpacing.x;
     ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
     ImRect bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
     g.NextItemData.ClearFlags();
@@ -6637,9 +6712,16 @@ bool ImGui::BeginListBox(const char* label, const ImVec2& size_arg)
     BeginGroup();
     if (label_size.x > 0.0f)
     {
-        ImVec2 label_pos = ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y);
-        RenderText(label_pos, label);
-        window->DC.CursorMaxPos = ImMax(window->DC.CursorMaxPos, label_pos + label_size);
+       float x;
+       if constexpr(kLeftLabels)
+          x = frame_bb.Min.x - label_size.x - style.ItemInnerSpacing.x;
+       else
+          x = frame_bb.Max.x + style.ItemInnerSpacing.x;
+
+       ImVec2 label_pos = ImVec2(x, frame_bb.Min.y + style.FramePadding.y);
+       RenderText(label_pos, label);
+       if constexpr(!kLeftLabels)
+          window->DC.CursorMaxPos = ImMax(window->DC.CursorMaxPos, label_pos + label_size);
     }
 
     BeginChildFrame(id, frame_bb.GetSize());
