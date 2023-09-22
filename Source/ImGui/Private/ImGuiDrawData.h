@@ -16,6 +16,7 @@ struct FImGuiDrawCommand
 	uint32 NumElements;
 	FSlateRect ClippingRect;
 	TextureIndex TextureId;
+	unsigned IdxOffset;
 };
 
 // Wraps raw ImGui draw list data in utilities that transform them for Slate.
@@ -34,7 +35,7 @@ public:
 	{
 		const ImDrawCmd& ImGuiCommand = ImGuiCommandBuffer[CommandNb];
 		return { ImGuiCommand.ElemCount, TransformRect(Transform, ImGuiInterops::ToSlateRect(ImGuiCommand.ClipRect)),
-			ImGuiInterops::ToTextureIndex(ImGuiCommand.TextureId) };
+			ImGuiInterops::ToTextureIndex(ImGuiCommand.TextureId), ImGuiCommand.IdxOffset };
 	}
 
 #if ENGINE_COMPATIBILITY_LEGACY_CLIPPING_API
