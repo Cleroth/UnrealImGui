@@ -178,4 +178,9 @@ namespace ImGuiSugar
 #define with_CollapsingHeader(...) if (ImGui::CollapsingHeader(__VA_ARGS__))
 #define with_MenuItem(...) if (ImGui::MenuItem(__VA_ARGS__))
 
+namespace ImGui {
+IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0,
+                          ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+}
+
 // clang-format on
