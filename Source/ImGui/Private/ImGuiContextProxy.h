@@ -84,7 +84,9 @@ public:
 private:
 
 	void BeginFrame(float DeltaTime = 1.f / 60.f);
+public:
 	void EndFrame();
+private:
 
 	void UpdateDrawData(ImDrawData* DrawData);
 

@@ -74,6 +74,11 @@ FImGuiContextManager::FImGuiContextManager(FImGuiModuleSettings& InSettings)
 
 FImGuiContextManager::~FImGuiContextManager()
 {
+	for(auto & p : Contexts)
+	{
+		// needed to unlock ImFontAtlas in order to free them without errors
+		p.Value.ContextProxy->EndFrame();
+	}
 	Settings.OnDPIScaleChangedDelegate.RemoveAll(this);
 
 	// Order matters because contexts can be created during World Tick Start events.
