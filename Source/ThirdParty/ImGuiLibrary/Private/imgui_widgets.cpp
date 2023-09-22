@@ -6696,7 +6696,10 @@ bool ImGui::BeginListBox(const char* label, const ImVec2& size_arg)
     ImVec2 size = ImFloor(CalcItemSize(size_arg, CalcItemWidth(), GetTextLineHeightWithSpacing() * 7.25f + style.FramePadding.y * 2.0f));
     ImVec2 frame_size = ImVec2(size.x, ImMax(size.y, label_size.y));
     if(kLeftLabels)
-       window->DC.CursorPos.x += label_size.x + style.ItemInnerSpacing.x;
+    {
+       frame_size.x -= label_size.x;
+       window->DC.CursorPos.x += label_size.x;
+    }
     ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
     ImRect bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
     g.NextItemData.ClearFlags();
