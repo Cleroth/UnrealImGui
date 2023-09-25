@@ -948,6 +948,7 @@ void SImGuiWidget::OnDebugDraw()
 				Styles::TextHighlight(InputState.IsShiftDown(), [&]() { ImGui::Text("Shift"); }); ImGui::NextColumn();
 				Styles::TextHighlight(InputState.IsControlDown(), [&]() { ImGui::Text("Control"); }); ImGui::NextColumn();
 				Styles::TextHighlight(InputState.IsAltDown(), [&]() { ImGui::Text("Alt"); }); ImGui::NextColumn();
+				Styles::TextHighlight(InputState.IsCommandDown(), [&]() { ImGui::Text("Command"); }); ImGui::NextColumn();
 				ImGui::NextColumn();
 			});
 

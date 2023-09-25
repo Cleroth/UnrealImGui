@@ -361,10 +361,10 @@ namespace ImGuiInterops
 		static const uint32 RightAlt = GetKeyIndex(EKeys::RightAlt);
 
 		// Copy key modifiers.
-		IO.KeyCtrl = InputState.IsControlDown();
-		IO.KeyShift = InputState.IsShiftDown();
-		IO.KeyAlt = InputState.IsAltDown();
-		IO.KeySuper = false;
+		IO.AddKeyEvent(ImGuiMod_Ctrl, InputState.IsControlDown());
+		IO.AddKeyEvent(ImGuiMod_Shift, InputState.IsShiftDown());
+		IO.AddKeyEvent(ImGuiMod_Alt, InputState.IsAltDown());
+		IO.AddKeyEvent(ImGuiMod_Super, InputState.IsCommandDown());
 
 		// Copy buffers.
 		if (!InputState.GetKeysUpdateRange().IsEmpty())
