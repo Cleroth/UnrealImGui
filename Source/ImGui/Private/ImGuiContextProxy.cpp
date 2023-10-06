@@ -3,9 +3,7 @@
 #include "ImGuiContextProxy.h"
 
 #include "ImGuiDelegatesContainer.h"
-#include "ImGuiImplementation.h"
 #include "ImGuiInteroperability.h"
-#include "Utilities/Arrays.h"
 #include "VersionCompatibility.h"
 
 #include <GenericPlatform/GenericPlatformFile.h>

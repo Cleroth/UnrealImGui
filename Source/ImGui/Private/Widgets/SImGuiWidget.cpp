@@ -7,11 +7,9 @@
 #include "ImGuiContextProxy.h"
 #include "ImGuiInputHandler.h"
 #include "ImGuiInputHandlerFactory.h"
-#include "ImGuiInteroperability.h"
 #include "ImGuiModuleManager.h"
 #include "ImGuiModuleSettings.h"
 #include "TextureManager.h"
-#include "Utilities/Arrays.h"
 #include "VersionCompatibility.h"
 
 #include <Engine/Console.h>

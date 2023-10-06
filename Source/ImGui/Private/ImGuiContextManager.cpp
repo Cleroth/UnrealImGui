@@ -3,7 +3,6 @@
 #include "ImGuiContextManager.h"
 
 #include "ImGuiDelegatesContainer.h"
-#include "ImGuiImplementation.h"
 #include "ImGuiModuleSettings.h"
 #include "ImGuiModule.h"
 #include "Utilities/WorldContext.h"

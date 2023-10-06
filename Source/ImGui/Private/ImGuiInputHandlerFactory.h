@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "ImGuiModuleSettings.h"
-
 
 class FImGuiModuleManager;
 class UGameViewportClient;

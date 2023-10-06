@@ -9,7 +9,6 @@
 #include "ImGuiModuleSettings.h"
 #include "VersionCompatibility.h"
 
-#include <Engine/Console.h>
 #include <Framework/Application/SlateApplication.h>
 #include <GameFramework/InputSettings.h>
 #include <InputCoreTypes.h>

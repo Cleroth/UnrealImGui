@@ -5,7 +5,6 @@
 #include "ImGuiDelegatesContainer.h"
 #include "ImGuiModuleManager.h"
 #include "TextureManager.h"
-#include "Utilities/WorldContext.h"
 #include "Utilities/WorldContextIndex.h"
 
 #if WITH_EDITOR
