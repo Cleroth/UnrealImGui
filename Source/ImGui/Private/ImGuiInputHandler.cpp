@@ -79,6 +79,13 @@ FReply UImGuiInputHandler::OnKeyDown(const FKeyEvent& KeyEvent)
 		InputState->SetKeyDown(KeyEvent, true);
 		CopyModifierKeys(KeyEvent);
 
+#if WITH_EDITOR
+		if(!bConsume || IsStopPlaySessionEvent(KeyEvent))
+		{
+			// Don't add the `Escape` key event if we didn't consume it
+			// Otherwise it still seems to be pressed when we play again...
+		} else
+#endif // WITH_EDITOR
 		InputState->KeyDownEvents.Add(KeyEvent.GetKeyCode(), KeyEvent);
 
 		return ToReply(bConsume);
