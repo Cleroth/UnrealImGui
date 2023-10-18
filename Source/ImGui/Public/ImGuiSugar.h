@@ -39,10 +39,10 @@ namespace ImGuiSugar
         BooleanGuard(const bool state, const ScopeEndCallback end) noexcept
             : m_state(state), m_end(end) {}
 
-        BooleanGuard(const BooleanGuard<AlwaysCallEnd>&) = delete;
-        BooleanGuard(BooleanGuard<AlwaysCallEnd>&&) = delete;
-        BooleanGuard<AlwaysCallEnd>& operator=(const BooleanGuard<AlwaysCallEnd>&) = delete; // NOLINT
-        BooleanGuard<AlwaysCallEnd>& operator=(BooleanGuard<AlwaysCallEnd>&&) = delete; // NOLINT
+        BooleanGuard(const BooleanGuard&) = delete;
+        BooleanGuard(BooleanGuard&&) = delete;
+        BooleanGuard& operator=(const BooleanGuard&) = delete; // NOLINT
+        BooleanGuard& operator=(BooleanGuard&&) = delete; // NOLINT
 
         ~BooleanGuard() noexcept 
         {
@@ -117,20 +117,35 @@ namespace ImGuiSugar
 
 // Self scoped blocks
 
+// const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0
 #define with_Window(...)             IMGUI_SUGAR_SCOPED_BOOL(ImGui::Begin,                   ImGui::End,               true,  __VA_ARGS__)
+// const char* str_id, ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags flags = 0
 #define with_Child(...)              IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginChild,              ImGui::EndChild,          true,  __VA_ARGS__)
+// ImGuiID id, ImVec2& size, ImGuiWindowFlags flags = 0
 #define with_ChildFrame(...)         IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginChildFrame,         ImGui::EndChildFrame,     true,  __VA_ARGS__)
+// const char* label, const char* preview_value, ImGuiComboFlags flags = 0
 #define with_Combo(...)              IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginCombo,              ImGui::EndCombo,          false, __VA_ARGS__)
+// const char* label, const ImVec2& size = ImVec2(0, 0)
 #define with_ListBox(...)            IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginListBox,            ImGui::EndListBox,        false, __VA_ARGS__)
+// const char* label, bool enabled = true
 #define with_Menu(...)               IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginMenu,               ImGui::EndMenu,           false, __VA_ARGS__)
+// const char* str_id, ImGuiWindowFlags flags = 0
 #define with_Popup(...)              IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginPopup,              ImGui::EndPopup,          false, __VA_ARGS__)
+// const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0
 #define with_PopupModal(...)         IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginPopupModal,         ImGui::EndPopup,          false, __VA_ARGS__)
+// const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1
 #define with_PopupContextItem(...)   IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginPopupContextItem,   ImGui::EndPopup,          false, __VA_ARGS__)
+// const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1
 #define with_PopupContextWindow(...) IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginPopupContextWindow, ImGui::EndPopup,          false, __VA_ARGS__)
+// const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1
 #define with_PopupContextVoid(...)   IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginPopupContextVoid,   ImGui::EndPopup,          false, __VA_ARGS__)
+// const char* str_id, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0.0f, 0.0f), float inner_width = 0.0f
 #define with_Table(...)              IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginTable,              ImGui::EndTable,          false, __VA_ARGS__)
+// const char* str_id, ImGuiTabBarFlags flags = 0
 #define with_TabBar(...)             IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginTabBar,             ImGui::EndTabBar,         false, __VA_ARGS__)
+// const char* label, bool* p_open = NULL, ImGuiTabItemFlags flags = 0
 #define with_TabItem(...)            IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginTabItem,            ImGui::EndTabItem,        false, __VA_ARGS__)
+// ImGuiDragDropFlags flags = 0
 #define with_DragDropSource(...)     IMGUI_SUGAR_SCOPED_BOOL(ImGui::BeginDragDropSource,     ImGui::EndDragDropSource, false, __VA_ARGS__)
 #define with_TreeNode(...)           IMGUI_SUGAR_SCOPED_BOOL(ImGui::TreeNode,                ImGui::TreePop,           false, __VA_ARGS__)
 #define with_TreeNodeV(...)          IMGUI_SUGAR_SCOPED_BOOL(ImGui::TreeNodeV,               ImGui::TreePop,           false, __VA_ARGS__)
@@ -145,19 +160,24 @@ namespace ImGuiSugar
 #define with_Group()                 IMGUI_SUGAR_SCOPED_VOID_0(ImGui::BeginGroup,            ImGui::EndGroup)
 #define with_Tooltip()               IMGUI_SUGAR_SCOPED_VOID_0(ImGui::BeginTooltip,          ImGui::EndTooltip)
 
+// ImFont* font
 #define with_Font(...)               IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushFont,               ImGui::PopFont,               __VA_ARGS__)
-#define with_AllowKeyboardFocus(...) IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushAllowKeyboardFocus, ImGui::PopAllowKeyboardFocus, __VA_ARGS__)
+// bool repeat
 #define with_ButtonRepeat(...)       IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushButtonRepeat,       ImGui::PopButtonRepeat,       __VA_ARGS__)
+// float item_width
 #define with_ItemWidth(...)          IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushItemWidth,          ImGui::PopItemWidth,          __VA_ARGS__)
+// float wrap_pos_x
 #define with_TextWrapPos(...)        IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushTextWrapPos,        ImGui::PopTextWrapPos,        __VA_ARGS__)
+// const char* str_id
 #define with_ID(...)                 IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushID,                 ImGui::PopID,                 __VA_ARGS__)
+// const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect = false
 #define with_ClipRect(...)           IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushClipRect,           ImGui::PopClipRect,           __VA_ARGS__)
+// ImTextureID texture_id
 #define with_TextureID(...)          IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushTextureID,          ImGui::PopTextureID,          __VA_ARGS__)
 
 // Non self scoped guards (managed by parent scope)
 
 #define set_Font(...)                IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushFont,               ImGui::PopFont,               __VA_ARGS__)
-#define set_AllowKeyboardFocus(...)  IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushAllowKeyboardFocus, ImGui::PopAllowKeyboardFocus, __VA_ARGS__)
 #define set_ButtonRepeat(...)        IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushButtonRepeat,       ImGui::PopButtonRepeat,       __VA_ARGS__)
 #define set_ItemWidth(...)           IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushItemWidth,          ImGui::PopItemWidth,          __VA_ARGS__)
 #define set_TextWrapPos(...)         IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushTextWrapPos,        ImGui::PopTextWrapPos,        __VA_ARGS__)
@@ -167,14 +187,19 @@ namespace ImGuiSugar
 
 // Special case (overloaded functions StyleColor and StyleVar)
 
+// ImGuiCol idx, const ImVec4& col
 #define set_StyleColor(...)          IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushStyleColor,  ImGuiSugar::PopStyleColor,           __VA_ARGS__)
+// ImGuiStyleVar idx, [float val / const ImVec2& val]
 #define set_StyleVar(...)            IMGUI_SUGAR_PARENT_SCOPED_VOID_N(ImGui::PushStyleVar,    ImGuiSugar::PopStyleVar,             __VA_ARGS__)
 
+// ImGuiCol idx, const ImVec4& col
 #define with_StyleColor(...)         IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushStyleColor,         ImGuiSugar::PopStyleColor,           __VA_ARGS__)
+// ImGuiStyleVar idx, [float val / const ImVec2& val]
 #define with_StyleVar(...)           IMGUI_SUGAR_SCOPED_VOID_N(ImGui::PushStyleVar,           ImGuiSugar::PopStyleVar,             __VA_ARGS__)
 
 // Non RAII 
 
+// const char* label, [opt] bool* p_visible, ImGuiTreeNodeFlags flags = 0
 #define with_CollapsingHeader(...) if (ImGui::CollapsingHeader(__VA_ARGS__))
 #define with_MenuItem(...) if (ImGui::MenuItem(__VA_ARGS__))
 
