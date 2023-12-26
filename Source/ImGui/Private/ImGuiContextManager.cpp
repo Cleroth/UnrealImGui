@@ -63,6 +63,7 @@ FImGuiContextManager::FImGuiContextManager(FImGuiModuleSettings& InSettings)
 	Settings.OnDPIScaleChangedDelegate.AddRaw(this, &FImGuiContextManager::SetDPIScale);
 
 	SetDPIScale(Settings.GetDPIScaleInfo());
+
 	BuildFontAtlas();
 
 	FWorldDelegates::OnWorldTickStart.AddRaw(this, &FImGuiContextManager::OnWorldTickStart);
@@ -266,6 +267,11 @@ void FImGuiContextManager::BuildFontAtlas(const TMap<FName, TSharedPtr<ImFontCon
 		ImFontConfig FontConfig = {};
 		FontConfig.SizePixels = FMath::RoundFromZero(13.f * DPIScale);
 		FontAtlas.AddFontDefault(&FontConfig);
+
+
+		// auto path = FPaths::ProjectContentDir() / "UI" / "Fonts"
+		// 	/ "hf-free-complete" / "compass-pro-v1.1" / "CompassPro.ttf";
+		// FontAtlas.AddFontFromFileTTF(TCHAR_TO_ANSI(*path), 15);
 
 		// Build custom fonts
 		for (const TPair<FName, TSharedPtr<ImFontConfig>>& CustomFontPair : CustomFontConfigs)
