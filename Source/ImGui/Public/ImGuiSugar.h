@@ -208,4 +208,20 @@ IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFla
                           ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
 }
 
+/*******  ▞▀▖▐     ▜      ▌    ▐     ▗▀▖▗▀▖ ******************/
+/*******  ▚▄ ▜▀ ▌ ▌▐ ▞▀▖▞▀▌ ▞▀▘▜▀ ▌ ▌▐  ▐   ******************/
+/*******  ▖ ▌▐ ▖▚▄▌▐ ▛▀ ▌ ▌ ▝▀▖▐ ▖▌ ▌▜▀ ▜▀  ******************/
+/*******  ▝▀  ▀ ▗▄▘ ▘▝▀▘▝▀▘ ▀▀  ▀ ▝▀▘▐  ▐ ******************/
+
+#define with_ButtonColored(r,g,b)  \
+	if(const ImGuiSugar::BooleanGuard<true> IMGUI_SUGAR_CONCAT1(_ui_scope_guard, __LINE__) \
+		= {[]{ \
+			PushStyleColor(ImGuiCol_Button       , {r,g,b,0.5}); \
+			PushStyleColor(ImGuiCol_ButtonHovered, {r,g,b,0.8}); \
+			PushStyleColor(ImGuiCol_ButtonActive , {r,g,b,0.7}); \
+			return true; \
+		}(), []{ \
+			PopStyleColor(3); \
+		}})
+
 // clang-format on
