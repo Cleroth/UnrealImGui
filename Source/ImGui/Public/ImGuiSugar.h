@@ -224,4 +224,14 @@ IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFla
 			PopStyleColor(3); \
 		}})
 
+#define ComboEnum(label, var)  \
+	with_Combo(label, enum_name(var).data())		\
+	{																					\
+		for(auto [val, name] : enum_entries<decltype(var)>())	\
+		{																				\
+			if(Selectable(name.data(), var == val))		\
+				var = val;											\
+		}																				\
+	}
+
 // clang-format on
