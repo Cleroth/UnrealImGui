@@ -225,7 +225,7 @@ IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFla
 		}})
 
 #define ComboEnum(label, var)  \
-	with_Combo(label, enum_name(var).data())		\
+	with_Combo(label, enum_name(var).data(), ImGuiComboFlags_HeightLarge)		\
 	{																					\
 		for(auto [val, name] : enum_entries<decltype(var)>())	\
 		{																				\
