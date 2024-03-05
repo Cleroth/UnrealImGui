@@ -249,6 +249,6 @@ IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFla
 
 #define InputFloatW(label, var)		\
 	SetNextItemWidth(std::max(100.f, CalcTextSize(label, nullptr, true).x)), \
-	InputFloat(label, var)
+	InputFloat(label, var, 0.01, 0.05, "%g")
 
 // clang-format on
