@@ -234,9 +234,11 @@ IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFla
 		}																				\
 	}
 
-#define InputDuration(label, var)	InputFloat(label, var, 0.1, 1, "%g");
+#define InputDuration(label, var)	SetNextItemWidth(CalcTextSize(label).x + 70), \
+												InputFloat(label, var, 0.1, 1, "%g")
 #define InputAngle(label, var)		\
-	InputFloat(label, var, 5, 25, "%g"); \
-	*(var) = FMath::Clamp(*(var), 0, 180);
+	SetNextItemWidth(CalcTextSize(label).x + 70), \
+	InputFloat(label, var, 5, 25, "%g"), \
+	*(var) = FMath::Clamp(*(var), 0, 180)
 
 // clang-format on
